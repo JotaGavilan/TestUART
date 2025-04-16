@@ -32,18 +32,20 @@
       }
     }
 
-    function enviarPrueba() {
-      if (!uart) {
-        console.warn("UART no está conectado");
-        return;
-      }
+   function enviarPrueba() {
+  if (!uart) {
+    document.getElementById("estado").textContent = "⚠ UART no conectada";
+    return;
+  }
 
-      const mensaje = "05112\n";
-      const encoded = new TextEncoder().encode(mensaje);
-      console.log("📤 Enviando:", mensaje);
-      console.log("Bytes:", [...encoded]); // para ver si acaba en 10
-      uart.writeValue(encoded);
-    }
+  const mensaje = "05112\n";
+  const encoded = new TextEncoder().encode(mensaje);
+
+  document.getElementById("estado").innerText =
+    "📤 Enviado: " + mensaje + "\nBytes: " + [...encoded].join(', ');
+
+  uart.writeValue(encoded);
+}
   </script>
 </body>
 </html>
