@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Test micro:bit UART</title>
+</head>
+<body>
+  <h1>Conexión con micro:bit</h1>
+  <button onclick="conectar()">🔌 Conectar</button>
+  <button onclick="enviarPrueba()">📤 Enviar prueba</button>
+  <p id="estado">Estado: Desconectado</p>
+
+  <script>
+    let uart = null;
+
+    async function conectar() {
+      try {
+        document.getElementById("estado").textContent = "Estado: Buscando micro:bit...";
+        const device = await navigator.bluetooth.requestDevice({
+          filters: [{ namePrefix: "BBC micro:bit" }],
+          optionalServices: ['6e400001-b5a3-f393-e0a9-e50e24dcca9e']
+        });
+
+        const server = await device.gatt.connect();
+        const service = await server.getPrimaryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
+        uart = await service.getCharacteristic('6e400002-b5a3-f393-e0a9-e50e24dcca9e');
+        document.getElementById("estado").textContent = "Estado: ✅ micro:bit conectada";
+        console.log("Conectado a la micro:bit");
+      } catch (e) {
+        console.error("❌ Error en la conexión:", e);
+        document.getElementById("estado").textContent = "Estado: ❌ Error en la conexión";
+      }
+    }
+
+    function enviarPrueba() {
+      if (!uart) {
+        console.warn("UART no está conectado");
+        return;
+      }
+
+      const mensaje = "05112\n";
+      const encoded = new TextEncoder().encode(mensaje);
+      console.log("📤 Enviando:", mensaje);
+      console.log("Bytes:", [...encoded]); // para ver si acaba en 10
+      uart.writeValue(encoded);
+    }
+  </script>
+</body>
+</html>
